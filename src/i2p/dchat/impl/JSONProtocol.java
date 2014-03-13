@@ -26,6 +26,14 @@ public class JSONProtocol implements IChatProtocol {
 		return jobj.toString().getBytes();
 	}
 	
+	@Override
+	public byte[] buildMessage(ChatMessageType type, List<String> ls) {
+		JSONObject jobj = new JSONObject();
+		jobj.put(KEY_TEXT, ls);
+		jobj.put(KEY_TYPE, type.name());
+		return jobj.toString().getBytes();
+	}
+	
 	public List<String> extractList(byte [] bytes) {
 		try {
 			String str = new String(bytes,"UTF-8");
@@ -61,5 +69,6 @@ public class JSONProtocol implements IChatProtocol {
 			throw new RuntimeException(thrown);
 		}
 	}
+
 
 }

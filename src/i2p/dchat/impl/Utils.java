@@ -1,5 +1,7 @@
 package i2p.dchat.impl;
 
+import java.util.List;
+
 import i2p.dchat.ChatMessageType;
 import i2p.dchat.IChatMessage;
 import i2p.dchat.IChatProtocol;
@@ -15,7 +17,7 @@ public class Utils {
 		final Destination _dest = new Destination(destination); // final destination huehuehue 
 		final String _nickname = new String(nickname);
 		return new IPeerInfo (){
-
+			private String _nick = _nickname;
 			@Override
 			public Destination getDestination() {return _dest;}
 
@@ -23,37 +25,22 @@ public class Utils {
 			public void setDestination(Destination dest) {}
 
 			@Override
-			public String getNickname() {return _nickname;}
+			public String getNickname() {return _nick;}
 
 			@Override
-			public void setNickname(String str) {}
+			public void setNickname(String str) {_nick = str;}
 		};
 		
 	}
 	
-	public static IChatMessage parseChatMessage(byte [] raw, IChatProtocol protocol) throws DataFormatException, I2PInvalidDatagramException {
+	public static IChatMessage parseChatMessage(byte [] raw, final IChatProtocol protocol) throws DataFormatException, I2PInvalidDatagramException {
 		I2PDatagramDissector disect = new I2PDatagramDissector();
 		disect.loadI2PDatagram(raw);
 		disect.verifySignature();
 		final Destination dest = disect.extractSender();
 		final byte[] bytes= disect.extractPayload();
-		final String text = protocol.extractString(bytes);
 		final ChatMessageType type = protocol.extractType(bytes);
-		final IPeerInfo info = new IPeerInfo(){
-
-			@Override
-			public Destination getDestination() { return dest; }
-
-			@Override
-			public void setDestination(Destination dest) {}
-
-			@Override
-			public String getNickname() { return dest.getSigningPublicKey().toBase64(); }
-
-			@Override
-			public void setNickname(String str) {}
-			
-		};
+		final IPeerInfo info = makePeerInfo("??",dest.toBase64());
 		return new IChatMessage(){
 
 			@Override
@@ -63,7 +50,7 @@ public class Utils {
 			public void setPeerInfo(IPeerInfo info) {}
 
 			@Override
-			public String getText() { return text; }
+			public String getText() { return protocol.extractString(bytes); }
 
 			@Override
 			public void setMessage(String message) {}
@@ -75,7 +62,7 @@ public class Utils {
 			public void setType(ChatMessageType type) {}
 
 			@Override
-			public byte[] serialize() { return null; }
+			public List<String> getList() { return protocol.extractList(bytes); }
 			
 		};
 	}
