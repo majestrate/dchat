@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="jar" name="Create Runnable Jar for Project dchat">
+    <target name="jar">
+    	<delete dir="bin" />
+    	<mkdir dir="bin" />
+    	<javac srcdir="src" destdir="bin" />
+        <jar destfile="dchat.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="i2p.dchat.Client"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="i2p.jar"/>
+        </jar>
+    </target>
+</project>
